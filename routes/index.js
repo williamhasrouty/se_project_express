@@ -1,8 +1,6 @@
 const router = require("express").Router();
-
 const userRouter = require("./users");
-
-const clothingItemRouter = require("./clothingItem");
+const clothingItemRouter = require("./clothingItems");
 
 // Users
 
