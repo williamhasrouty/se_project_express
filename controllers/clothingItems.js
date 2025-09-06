@@ -19,11 +19,11 @@ const createClothingItem = (req, res) => {
       if (err.name === "ValidationError") {
         return res
           .status(ERROR_CODE_BAD_REQUEST)
-          .send({ message: err.message });
+          .send({ message: "Your browser sent a request that this server could not understand." });
       }
       return res
         .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: err.message });
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -34,7 +34,7 @@ const getClothingItems = (req, res) => {
       console.log(err);
       return res
         .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: err.message });
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -51,7 +51,7 @@ const deleteClothingItem = (req, res) => {
       }
       return res
         .status(ERROR_CODE_OK)
-        .send({ message: "Clothing item deleted", deletedItem });
+        .send({ message: "Clothing item deleted", item });
     })
     .catch((err) => {
       console.error(err);
@@ -67,7 +67,7 @@ const deleteClothingItem = (req, res) => {
       }
       return res
         .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: err.message });
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
