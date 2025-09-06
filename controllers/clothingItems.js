@@ -17,9 +17,10 @@ const createClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(ERROR_CODE_BAD_REQUEST)
-          .send({ message: "Your browser sent a request that this server could not understand." });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({
+          message:
+            "Your browser sent a request that this server could not understand.",
+        });
       }
       return res
         .status(ERROR_CODE_INTERNAL_SERVER)
@@ -117,7 +118,9 @@ const dislikeClothingItem = (req, res) => {
   )
     .then((item) => {
       if (!item) {
-        return res.status(404).send({ message: "Item not found" });
+        return res
+          .status(ERROR_CODE_NOT_FOUND)
+          .send({ message: "Item not found" });
       }
       return res.status(ERROR_CODE_OK).send(item);
     })
