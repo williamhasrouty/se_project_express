@@ -26,7 +26,7 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: "Your browser sent a request that this server could not understand." });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: "Invalid data." });
       }
       return res.status(ERROR_CODE_INTERNAL_SERVER).send({ message: "An error has occurred on the server." });
     });
@@ -43,7 +43,7 @@ const getUser = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: "User not found." });
       } else if (err.name === "CastError") {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: "Your browser sent a request that this server could not understand." });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: "Invalid data." });
       }
       return res.status(ERROR_CODE_INTERNAL_SERVER).send({ message: "An error has occurred on the server." });
     });

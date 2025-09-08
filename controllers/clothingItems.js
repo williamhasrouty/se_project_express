@@ -19,7 +19,7 @@ const createClothingItem = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
           message:
-            "Your browser sent a request that this server could not understand.",
+            "Invalid data.",
         });
       }
       return res
@@ -59,7 +59,7 @@ const deleteClothingItem = (req, res) => {
       if (err.name === "CastError") {
         return res
           .status(ERROR_CODE_BAD_REQUEST)
-          .send({ message: "Invalid item ID" });
+          .send({ message: "Invalid data." });
       }
       if (err.name === "DocumentNotFoundError") {
         return res
@@ -78,7 +78,7 @@ const likeClothingItem = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res
       .status(ERROR_CODE_BAD_REQUEST)
-      .send({ message: "Invalid item ID format" });
+      .send({ message: "Invalid data." });
   }
 
   ClothingItem.findByIdAndUpdate(
@@ -89,8 +89,8 @@ const likeClothingItem = (req, res) => {
     .then((item) => {
       if (!item) {
         return res
-          .status(ERROR_CODE_BAD_REQUEST)
-          .send({ message: "Item not found" });
+          .status(ERROR_CODE_NOT_FOUND)
+          .send({ message: "Item not found." });
       }
       return res.status(ERROR_CODE_OK).send(item);
     })
@@ -108,7 +108,7 @@ const dislikeClothingItem = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res
       .status(ERROR_CODE_BAD_REQUEST)
-      .send({ message: "Invalid item ID format" });
+      .send({ message: "Invalid data." });
   }
 
   ClothingItem.findByIdAndUpdate(
