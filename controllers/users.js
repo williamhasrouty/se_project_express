@@ -9,20 +9,8 @@ const {
   ERROR_CODE_CREATED,
   ERROR_CODE_OK,
   ERROR_CODE_CONFLICT,
+  ERROR_CODE_UNAUTHORIZED,
 } = require("../utils/errors");
-
-// GET /users
-
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(ERROR_CODE_OK).send(users))
-    .catch((err) => {
-      console.log(err);
-      return res
-        .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: "An error has occurred on the server." });
-    });
-};
 
 // POST /users
 const createUser = (req, res) => {
@@ -31,7 +19,6 @@ const createUser = (req, res) => {
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((user) => {
-      // Do not return the hashed password in the response
       const userObj = user.toObject();
       delete userObj.password;
       res.status(ERROR_CODE_CREATED).send(userObj);
@@ -39,7 +26,6 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.code === 11000) {
-        // Duplicate email error
         return res
           .status(ERROR_CODE_CONFLICT)
           .send({ message: "Email already exists." });
@@ -57,7 +43,7 @@ const createUser = (req, res) => {
 
 // GET /users/:userId
 const getCurrentUser = (req, res) => {
-  const { userId } = req.user._id;
+  const userId = req.user._id;
   User.findById(userId)
     .orFail()
     .then((user) => res.status(ERROR_CODE_OK).send(user))
@@ -80,9 +66,18 @@ const getCurrentUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+
+  if (!email || !password) {
+    return res
+      .status(ERROR_CODE_BAD_REQUEST)
+      .send({ message: "Email and password are required." });
+  }
+  
+  User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
       res.send({ token });
     })
     .catch((err) => {
@@ -121,10 +116,9 @@ const updateProfile = (req, res) => {
         .status(ERROR_CODE_INTERNAL_SERVER)
         .send({ message: "An error has occurred on the server." });
     });
-  }
+};
 
 module.exports = {
-  getUsers,
   createUser,
   getCurrentUser,
   login,

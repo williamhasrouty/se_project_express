@@ -1,8 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const mainRouter = require("./routes/index");
 const auth = require("./middlewares/auth");
-const cors = require("cors");
 const { login, createUser, updateProfile } = require("./controllers/users");
 
 const { getClothingItems } = require("./controllers/clothingItems");
@@ -21,13 +21,15 @@ mongoose
 
 app.use(express.json());
 
+app.use(cors());
+
 app.post("/signin", login);
 app.post("/signup", createUser);
 app.get("/items", getClothingItems);
-app.put("/users/me", auth, updateProfile);
+app.patch("/users/me", auth, updateProfile);
 
 app.use(auth);
-app.use(cors());
+
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
