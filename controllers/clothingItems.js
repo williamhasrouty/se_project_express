@@ -6,6 +6,7 @@ const {
   ERROR_CODE_INTERNAL_SERVER,
   ERROR_CODE_CREATED,
   ERROR_CODE_OK,
+  ERROR_CODE_FORBIDDEN
 } = require("../utils/errors");
 
 const createClothingItem = (req, res) => {
@@ -41,18 +42,26 @@ const getClothingItems = (req, res) => {
 
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
+  const userId = req.user._id;
 
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(itemId)
     .orFail()
     .then((item) => {
       if (!item) {
         return res
           .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Clothing item not found" });
+          .send({ message: "Clothing item not found." });
       }
-      return res
-        .status(ERROR_CODE_OK)
-        .send({ message: "Clothing item deleted", item });
+      if (item.owner.toString() !== userId) {
+        return res
+          .status(ERROR_CODE_FORBIDDEN)
+          .send({ message: "Forbidden." });
+      }
+      return ClothingItem.findByIdAndDelete(itemId).then((deletedItem) =>
+        res
+          .status(ERROR_CODE_OK)
+          .send({ message: "Clothing item deleted.", item: deletedItem })
+      );
     })
     .catch((err) => {
       console.error(err);
@@ -64,7 +73,7 @@ const deleteClothingItem = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res
           .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Clothing item not found" });
+          .send({ message: "Clothing item not found." });
       }
       return res
         .status(ERROR_CODE_INTERNAL_SERVER)

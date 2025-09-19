@@ -1,6 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
+const auth = require("./middlewares/auth");
+const cors = require("cors");
+const { login, createUser, updateProfile } = require("./controllers/users");
+
+const { getClothingItems } = require("./controllers/clothingItems");
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -15,12 +20,14 @@ mongoose
   });
 
 app.use(express.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: "68b8c81c3e89819e32fd79b0",
-  };
-  next();
-});
+
+app.post("/signin", login);
+app.post("/signup", createUser);
+app.get("/items", getClothingItems);
+app.put("/users/me", auth, updateProfile);
+
+app.use(auth);
+app.use(cors());
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
