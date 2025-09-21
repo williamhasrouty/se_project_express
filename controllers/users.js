@@ -53,7 +53,7 @@ const getCurrentUser = (req, res) => {
         return res
           .status(ERROR_CODE_NOT_FOUND)
           .send({ message: "User not found." });
-      } else if (err.name === "CastError") {
+      } if (err.name === "CastError") {
         return res
           .status(ERROR_CODE_BAD_REQUEST)
           .send({ message: "Invalid data." });
@@ -72,8 +72,8 @@ const login = (req, res) => {
       .status(ERROR_CODE_BAD_REQUEST)
       .send({ message: "Email and password are required." });
   }
-  
-  User.findUserByCredentials(email, password)
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -82,9 +82,14 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(ERROR_CODE_UNAUTHORIZED)
+          .send({ message: "Incorrect email or password." });
+      }
       return res
-        .status(ERROR_CODE_UNAUTHORIZED)
-        .send({ message: "Incorrect email or password." });
+        .status(ERROR_CODE_INTERNAL_SERVER)
+        .send({ message: "An error has occurred on the server." });
     });
 };
 

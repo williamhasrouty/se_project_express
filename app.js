@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const mainRouter = require("./routes/index");
 const auth = require("./middlewares/auth");
-const { login, createUser, updateProfile } = require("./controllers/users");
-
+const { login, createUser } = require("./controllers/users");
 const { getClothingItems } = require("./controllers/clothingItems");
 
 const { PORT = 3001 } = process.env;
@@ -26,7 +25,6 @@ app.use(cors());
 app.post("/signin", login);
 app.post("/signup", createUser);
 app.get("/items", getClothingItems);
-app.patch("/users/me", auth, updateProfile);
 
 app.use(auth);
 

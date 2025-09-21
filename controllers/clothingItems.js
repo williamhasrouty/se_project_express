@@ -1,12 +1,12 @@
-const ClothingItem = require("../models/clothingItem");
 const mongoose = require("mongoose");
+const ClothingItem = require("../models/clothingItem");
 const {
   ERROR_CODE_BAD_REQUEST,
   ERROR_CODE_NOT_FOUND,
   ERROR_CODE_INTERNAL_SERVER,
   ERROR_CODE_CREATED,
   ERROR_CODE_OK,
-  ERROR_CODE_FORBIDDEN
+  ERROR_CODE_FORBIDDEN,
 } = require("../utils/errors");
 
 const createClothingItem = (req, res) => {
@@ -19,8 +19,7 @@ const createClothingItem = (req, res) => {
       console.error(err);
       if (err.name === "ValidationError") {
         return res.status(ERROR_CODE_BAD_REQUEST).send({
-          message:
-            "Invalid data.",
+          message: "Invalid data.",
         });
       }
       return res
@@ -53,9 +52,7 @@ const deleteClothingItem = (req, res) => {
           .send({ message: "Clothing item not found." });
       }
       if (item.owner.toString() !== userId) {
-        return res
-          .status(ERROR_CODE_FORBIDDEN)
-          .send({ message: "Forbidden." });
+        return res.status(ERROR_CODE_FORBIDDEN).send({ message: "Forbidden." });
       }
       return ClothingItem.findByIdAndDelete(itemId).then((deletedItem) =>
         res
@@ -90,7 +87,7 @@ const likeClothingItem = (req, res) => {
       .send({ message: "Invalid data." });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
@@ -120,7 +117,7 @@ const dislikeClothingItem = (req, res) => {
       .send({ message: "Invalid data." });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
     { new: true }
