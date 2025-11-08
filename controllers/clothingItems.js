@@ -1,58 +1,41 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../utils/CustomErrors");
 const {
-  ERROR_CODE_BAD_REQUEST,
-  ERROR_CODE_NOT_FOUND,
-  ERROR_CODE_INTERNAL_SERVER,
   ERROR_CODE_CREATED,
   ERROR_CODE_OK,
-  ERROR_CODE_FORBIDDEN,
 } = require("../utils/errors");
 
-const createClothingItem = (req, res) => {
+const createClothingItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((clothingItem) => res.status(ERROR_CODE_CREATED).send(clothingItem))
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({
-          message: "Invalid data.",
-        });
+        next(new BadRequestError("Invalid data."));
+      } else {
+        next(err);
       }
-      return res
-        .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: "An error has occurred on the server." });
     });
 };
 
-const getClothingItems = (req, res) => {
+const getClothingItems = (req, res, next) => {
   ClothingItem.find({})
     .then((clothingItems) => res.status(ERROR_CODE_OK).send(clothingItems))
-    .catch((err) => {
-      console.log(err);
-      return res
-        .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: "An error has occurred on the server." });
-    });
+    .catch(next);
 };
 
-const deleteClothingItem = (req, res) => {
+const deleteClothingItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
 
   ClothingItem.findById(itemId)
-    .orFail()
+    .orFail(() => new NotFoundError("Clothing item not found."))
     .then((item) => {
-      if (!item) {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Clothing item not found." });
-      }
       if (item.owner.toString() !== userId) {
-        return res.status(ERROR_CODE_FORBIDDEN).send({ message: "Forbidden." });
+        throw new ForbiddenError("Forbidden.");
       }
       return ClothingItem.findByIdAndDelete(itemId).then((deletedItem) =>
         res
@@ -61,81 +44,48 @@ const deleteClothingItem = (req, res) => {
       );
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
-        return res
-          .status(ERROR_CODE_BAD_REQUEST)
-          .send({ message: "Invalid data." });
+        next(new BadRequestError("Invalid data."));
+      } else {
+        next(err);
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Clothing item not found." });
-      }
-      return res
-        .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: "An error has occurred on the server." });
     });
 };
 
-const likeClothingItem = (req, res) => {
+const likeClothingItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res
-      .status(ERROR_CODE_BAD_REQUEST)
-      .send({ message: "Invalid data." });
+    next(new BadRequestError("Invalid data."));
+    return;
   }
 
-  return ClothingItem.findByIdAndUpdate(
+  ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .then((item) => {
-      if (!item) {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Item not found." });
-      }
-      return res.status(ERROR_CODE_OK).send(item);
-    })
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: "Internal server error" });
-    });
+    .orFail(() => new NotFoundError("Item not found."))
+    .then((item) => res.status(ERROR_CODE_OK).send(item))
+    .catch(next);
 };
 
-const dislikeClothingItem = (req, res) => {
+const dislikeClothingItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res
-      .status(ERROR_CODE_BAD_REQUEST)
-      .send({ message: "Invalid data." });
+    next(new BadRequestError("Invalid data."));
+    return;
   }
 
-  return ClothingItem.findByIdAndUpdate(
+  ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .then((item) => {
-      if (!item) {
-        return res
-          .status(ERROR_CODE_NOT_FOUND)
-          .send({ message: "Item not found" });
-      }
-      return res.status(ERROR_CODE_OK).send(item);
-    })
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(ERROR_CODE_INTERNAL_SERVER)
-        .send({ message: "Internal server error" });
-    });
+    .orFail(() => new NotFoundError("Item not found"))
+    .then((item) => res.status(ERROR_CODE_OK).send(item))
+    .catch(next);
 };
 
 module.exports = {
