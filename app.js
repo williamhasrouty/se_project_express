@@ -4,7 +4,7 @@ const cors = require("cors");
 const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const auth = require("./middlewares/auth");
-const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 const errorHandler = require("./middlewares/error-handler");
 const { login, createUser } = require("./controllers/users");
 const { getClothingItems } = require("./controllers/clothingItems");
@@ -34,9 +34,8 @@ app.use(auth);
 app.use("/", mainRouter);
 
 app.use(requestLogger);
-app.use(routes);
 
- // enabling the error logger
+// enabling the error logger
 app.use(errorLogger);
 
 // Celebrate error handling
