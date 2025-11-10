@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require('dotenv').config();
+require("dotenv").config();
 const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const auth = require("./middlewares/auth");
@@ -25,6 +25,12 @@ mongoose
 app.use(express.json());
 
 app.use(cors());
+
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 
 app.post("/signin", login);
 app.post("/signup", createUser);

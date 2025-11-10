@@ -26,3 +26,15 @@ The WTWR back-end project is designed to deepen your understanding of:
 - Defined and implemented routes and controllers
 - Implemented error handling middleware
 - Structured API to be RESTful and scalable
+
+* Live Demo 
+Check out the live application here: 
+Frontend:
+https://williamhasrouty.github.io/se_project_react/
+Backend:
+https://github.com/williamhasrouty/se_project_express
+
+* Domains
+wh-wtwr.jumpingcrab.com
+www.wh-wtwr.jumpingcrab.com
+api.wh-wtwr.jumpingcrab.com
