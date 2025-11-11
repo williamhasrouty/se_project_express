@@ -8,7 +8,6 @@ const {
 const {
   validateClothingItem,
   validateClothingItemId,
-  validateClothingItemOperation,
 } = require("../middlewares/validator");
 
 // POST /items

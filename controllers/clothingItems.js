@@ -1,10 +1,9 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const { BadRequestError, NotFoundError, ForbiddenError } = require("../utils/CustomErrors");
-const {
-  ERROR_CODE_CREATED,
-  ERROR_CODE_OK,
-} = require("../utils/errors");
+const BadRequestError = require("../utils/CustomErrors/BadRequestError");
+const NotFoundError = require("../utils/CustomErrors/NotFoundError");
+const ForbiddenError = require("../utils/CustomErrors/ForbiddenError");
+const { ERROR_CODE_CREATED, ERROR_CODE_OK } = require("../utils/errors");
 
 const createClothingItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
