@@ -38,3 +38,6 @@ https://github.com/williamhasrouty/se_project_express
 wh-wtwr.jumpingcrab.com
 www.wh-wtwr.jumpingcrab.com
 api.wh-wtwr.jumpingcrab.com
+
+* Project Pitch Video Link
+(Currently working on this and will add link upon next submission.)
